@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register a Sap Harvest</title>
+    <link href="/register.css" rel="stylesheet" media="all">
+    <script
+            src="https://code.jquery.com/jquery-3.6.0.min.js"
+            integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+            crossorigin="anonymous">
+    </script>
+    <style>
+        select#sapCharacteristic {
+            height: 50px;
+            width: 260px !important;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-wrapper bg-gra p-t-130 p-b-100">
+      <div class="wrapper wrapper--w680">
+        <div class="card card-4">
+          <div class="card-body">
+            <!--Title of Form-->
+            <input type="text" id="tree" name="tree" value=<%=treeID%> hidden>
+            <h2 class="title">Register Harvest</h2>
+            <form action="/users/registerHarvest" method="POST" role="form" id="registerForm">
+              <!-- First row -->
+              <div class="row row-space">
+                <div class="col-2">
+                  <div class="form-group">
+                      <div style="float: top; font-size: small; color: gray">
+                        (Please record all volumes in gallons)
+                      </div>
+                    <label>Sap Volume</label>
+                    <input type="text" class="input--style-4" id="sapVolume" name="sapVolume" required="" onkeypress="return event.charCode != 32">
+			      </div>
+                </div>
+                <div class="col-2">
+                  <div class="form-group">
+                  <div>
+                    <!-- Used for spacing purposes -->
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    &nbsp;
+                  </div>
+                    <label>Harvest Date</label>
+                    <input type="date" class="input--style-4" id="harvestDate" name="harvestDate" required="">
+                    </div>
+                </div>
+              </div>
+
+              <!--Time Processed Row-->
+              <div class="row row-space" style="margin-top: 10px">
+                <div class="col-2">
+                  <div class="form-group">
+                    <label>Temperature (Fahrenheit)</label>
+                    <input type="text" class="input--style-4" id="harvestTemp" name="harvestTemp">
+                    <input type="text"  id="tree" name="tree" value="<%=treeID%>" hidden>
+                  </div>
+                </div>
+                <div class="col-2">
+                  <div class="form-group">
+                    <label>Sap Characteristic</label><br>
+                    <select id="sapCharacteristic" name="sapCharacteristic" class="form-control" required="">
+                        <option value="Clear" selected>Clear</option>
+                        <option value="Opaque">Opaque</option>
+                        <option value="Yellow">Yellow</option>
+                        <option value="Other">Other</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!--Button Row-->
+              <div class="row row-space" style="margin-top: 10px">
+                <div class="col-2">
+                  <div class="form-group">
+                    <button type="submit" class="btn btn--radius btn--orange">Register</button>
+                  </div>
+                </div>
+                <div class="col-2">
+                  <div class="form-group">
+                    <a href="<%= link %>" class="btn btn--radius btn--orange">Back
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+<script>
+    let url = "https://api.weather.gov/points/";
+    url = url + <%= coords[0]%> + ',' +  <%= coords[1]%>;
+    $.getJSON(url, data =>{
+       const forecastURL = data.properties.forecast;
+        $.getJSON(forecastURL,data =>{
+            const temp = data.properties.periods[0].temperature;
+            $("#harvestTemp").val(temp);
+        });
+    });
+</script>
+
+</body>
+</html>

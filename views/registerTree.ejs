@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <!-- Title Page-->
+        <title>Register a Tree</title>
+
+        <!-- Main CSS-->
+        <link href="/register.css" rel="stylesheet" media="all">
+    <style>
+      .alert {
+        margin-bottom: 20px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+      }
+
+      .alert h4 {
+        margin-top: 0;
+        color: inherit;
+      }
+
+      .alert .alert-link {
+        font-weight: bold;
+      }
+
+      .alert > p,
+      .alert > ul {
+        margin-bottom: 0;
+      }
+
+      .alert > p + p {
+        margin-top: 5px;
+      }
+
+      .alert-dismissable,
+      .alert-dismissible {
+        padding-right: 35px;
+      }
+
+      .alert-dismissable .close,
+      .alert-dismissible .close {
+        position: relative;
+        top: -2px;
+        right: -21px;
+        color: inherit;
+      }
+
+      .alert-success {
+        background-color: #dff0d8;
+        border-color: #d6e9c6;
+        color: #3c763d;
+      }
+
+      .alert-success hr {
+        border-top-color: #c9e2b3;
+      }
+
+      .alert-success .alert-link {
+        color: #2b542c;
+      }
+
+      .alert-info {
+        background-color: #d9edf7;
+        border-color: #bce8f1;
+        color: #31708f;
+      }
+
+      .alert-info hr {
+        border-top-color: #a6e1ec;
+      }
+
+      .alert-info .alert-link {
+        color: #245269;
+      }
+
+      .alert-warning {
+        background-color: #fcf8e3;
+        border-color: #faebcc;
+        color: #8a6d3b;
+      }
+
+      .alert-warning hr {
+        border-top-color: #f7e1b5;
+      }
+
+      .alert-warning .alert-link {
+        color: #66512c;
+      }
+
+      .alert-danger {
+        background-color: #f2dede;
+        border-color: #ebccd1;
+        color: #a94442;
+      }
+
+      .alert-danger hr {
+        border-top-color: #e4b9c0;
+      }
+
+      .alert-danger .alert-link {
+        color: #843534;
+      }
+
+    </style>
+</head>
+
+  <body>
+    <!--Form-->
+    <div class="page-wrapper bg-gra p-t-130 p-b-100">
+      <div class="wrapper wrapper--w680">
+        <div class="card card-4">
+          <div class="card-body">
+            <!--Title of Form-->
+            <h2 class="title">Tree Registration</h2>
+            <% if(typeof alert != 'undefined') { %>
+              <% console.log(alert) %>
+              <div class="alert alert-warning alert-dismissible fade show" role="alert" id="alertNotFound">
+                <%= alert %>
+              </div>
+              <% alert = null %>
+            <% } %>
+            <form action="/users/registerTree" method="POST" role="form" id="registerForm">
+
+              <!-- First row -->
+              <div class="row row-space">
+                <div class="col-2">
+                  <div class="form-group">
+                    <div style="float: top; font-size: small; color: gray">
+                      (No spaces, use underscores or dashes)
+                    </div>
+                    <label>Tree ID</label>
+                    <input type="text" class="input--style-4" id="_id" name="_id" required="" onkeypress="return event.charCode != 32">
+								</div>
+                </div>
+                <div class="col-2">
+                  <div class="form-group">
+                    <div>
+                      <!-- Used for spacing purposes -->
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                      &nbsp;
+                    </div>
+                    <label>Tree Circumference (Inches)</label>
+                    <input type="number" class="input--style-4" id="circumf" name="circumf" required="">
+								</div>
+                </div>
+              </div>
+
+              <!--Second Row-->
+              <div class="row row-space" style="margin-top: 10px">
+                <div class="col-2">
+                  <div class="form-group">
+                    <label>Height of Tree Tapping (Inches)</label>
+                    <input type="number" class="input--style-4" id="tapHeight" name="tapHeight" required="">
+				  </div>
+                </div>
+                <div class="col-2">
+                  <div class="form-group">
+                    <label>Date of Tree Tapping</label>
+                    <input type="date" class="input--style-4" id="tappingDate" name="tappingDate" required="">
+				  </div>
+                </div>
+              </div>
+
+              <!--Location row-->
+              <div class="row row-space" style="margin-top: 10px">
+                <div class="col-2">
+                  <div class="form-group">
+                    <label>Latitude (optional)</label>
+                    <input type="text" class="input--style-4" id="latitude" name="latitude" placeholder="Accept geolocation to auto-fill">
+                      <div style="float: top; font-size: small; color: gray">Round to nearest 4th decimal</div>
+                    </div>
+                </div>
+                <div class="col-2">
+                  <div class="form-group">
+                    <label>Longitude (optional)</label>
+                    <input type="text" class="input--style-4" id="longitude" name="longitude" placeholder="Accept geolocation to auto-fill">
+                      <div style="float: top; font-size: small; color: gray">Round to nearest 4th decimal</div>
+                    </div>
+                </div>
+              </div>
+
+              <!--Notes Row-->
+              <div class="row" style="margin-left: 1px; margin-top: 10px">
+                <div class="form-group" style="width:100%">
+                  <label>Notes</label>
+                  <br>
+                    <textarea class="text" rows="10" form="registerForm" id="startNotes" name="startNotes" style="resize: none"></textarea>
+                  </div>
+              </div>
+
+              <!--Button Row-->
+              <div class="row row-space">
+                <div class="col-2">
+                  <div class="form-group">
+                    <button type="submit" class="btn btn--radius btn--orange">Register</button>
+                  </div>
+                </div>
+                <div class="col-2">
+                  <div class="form-group">
+                    <a href="<%= link %>" class="btn btn--radius btn--orange">Back
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Gets Geolocation with user permission -->
+    <script>
+      function success(pos) {
+      pos.coords;
+      document.getElementById('latitude').value = pos.coords.latitude.toFixed(4);
+      pos.coords.latitude;
+      document.getElementById('longitude').value = pos.coords.longitude.toFixed(4);
+      }
+
+      function error(err) {
+      console.warn(`ERROR(${err.code}): ${err.message}`);
+      }
+
+      navigator.geolocation.getCurrentPosition(success, error, {
+      enableHighAccuracy: true,
+      timeout: 5000,
+      maximumAge: 0
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><%= `${treeID}'s sap entries`%></title>
+    <link rel="stylesheet" href="/bootstrap.min.css">
+    <script type="text/javascript" language="javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script type="text/javascript" language="javascript" src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" language="javascript" src="https://cdn.datatables.net/buttons/1.7.0/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.flash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.print.min.js"></script>
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.5.0/build/ol.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.5.0/css/ol.css" type="text/css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.7.0/css/buttons.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css">
+    <style>
+        .map {
+            margin: auto;
+            align-content: center;
+            height: 400px;
+            width: 50%;
+        }
+        .container {
+            position: relative;
+        }
+        #close {
+            float:right;
+            display:inline-block;
+            padding:2px 5px;
+            background:#ccc;
+            cursor: pointer;
+        }
+        #close:hover {
+            float:right;
+            display:inline-block;
+            padding:2px 5px;
+            background:#ccc;
+            color:#fff;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #ff7300;">
+        <b class="navbar-brand"><%=`${treeID}'s sap entries`%></b>
+        <div id="navbarText">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" style="color: white; opacity: 0.9; margin-right: 10px" href="<%= `${treeID}/registerHarvest` %>">Register Sap Harvest</a>
+                </li>
+                <%if (tree.Tapped){%>
+                    <li class="nav-item">
+                        <a class="nav-link" style="color: white; opacity: 0.9; margin-right: 10px" href="<%= `${treeID}/endTreeSeason` %>">End Tree Season</a>
+                    </li>
+                <%}else{%>
+                    <li class="nav-item">
+                        <a class="nav-link" style="color: white; opacity: 0.9; margin-right: 10px" href="<%= `${treeID}/startTreeSeason` %>">Start Tree Season</a>
+                    </li>
+                <%}%>
+
+                <li class="nav-item">
+                    <a class="nav-link" style="color: white; opacity: 0.9; margin-right: 10px" href="<%= link %>">Back To Profile</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div id="map" class="map" style="margin-top: 20px"></div>
+
+    <h3 style="text-align: center; margin-top: 30px;"><%=`${treeID}'s Tree Data`%></h3>
+
+    <div class="container" style="margin-top: 30px">
+        <table id="treeData" class="display center">
+            <thead>
+                <tr>
+                    <th>Tree ID</th>
+                    <th>Circumference (Inches)</th>
+                    <th>Tapping Date</th>
+                    <th>Tap Height (Inches)</th>
+                </tr>
+            </thead>
+            <tbody style="text-align:center">
+            </tbody>
+        </table>
+    </div>
+
+    <h3 style="text-align: center; margin-top: 20px"><%=`${treeID}'s Sap Table`%></h3>
+
+
+    <script>
+        //map
+        $(document).ready(function(){
+                let features = new ol.Feature({
+                    geometry: new ol.geom.Point(ol.proj.fromLonLat([<%=tree.longitude%>, <%=tree.latitude%>]))
+                });
+                let map = new ol.Map({
+                    target: 'map',
+                    layers: [
+                        new ol.layer.Tile({
+                            source: new ol.source.OSM()
+                        }),
+                        new ol.layer.Vector({
+                            source: new ol.source.Vector({
+                                features: [features]
+                            }),
+                            style: new ol.style.Style({
+                                image: new ol.style.Circle({
+                                    radius: 3,
+                                    fill: new ol.style.Fill({color: 'red'})
+                                })
+                            })
+                        })
+                    ],
+                    view: new ol.View({
+                        center: ol.proj.fromLonLat([<%=tree.longitude%>, <%=tree.latitude%>]),
+                        zoom: 17
+                    })
+                });
+        })
+
+    </script>
+    <script>
+        //creating sap tables
+        for(let i = <%=tree.season[tree.season.length - 1]%> ; i >= <%=tree.season[0]%>  ; i--){
+            $('body').append('<div class="container" style="margin-top: 30px; text-align:center">\n' +
+                `<h3>Season ${i}</h3>` +
+                '        <table class="display center">\n' +
+                '            <thead>\n' +
+                '                <tr>\n' +
+                '                    <th>Sap Volume (Gallons)</th>\n' +
+                '                    <th>Harvest Temp (Fahrenheit)</th>\n' +
+                '                    <th>Sap Characteristic</th>\n' +
+                '                    <th>Harvest Date</th>\n' +
+                '                </tr>\n' +
+                '            </thead>\n' +
+                '            <tbody style="text-align:center">\n' +
+                '            </tbody>\n' +
+                '        </table>\n' +
+                '    </div>')
+            $('body > div > :last').attr('id','sapTable' + i);
+        }
+    </script>
+    <script>
+        //populating sap tables with data
+        $(document).ready(function() {
+            let initData = JSON.parse('<%-JSON.stringify(saps)%>');
+            if(initData){
+                initData.forEach(e =>{
+                    $(`#sapTable${e.season} > tbody`).append("<tr></tr>");
+                    $(`#sapTable${e.season} > tbody > :last`).append("<td>"+ e.sapVolume +"</td>");
+                    $(`#sapTable${e.season} > tbody > :last`).append("<td>"+ e.harvestTemp +"</td>");
+                    $(`#sapTable${e.season} > tbody > :last`).append("<td>"+ e.sapCharacteristic +"</td>");
+                    $(`#sapTable${e.season} tbody > :last`).append("<td>"+ e.harvestDate.substring(0,10) +"</td>");
+                })
+            }
+        });
+    </script>
+
+    <script>
+        //creating Season info table
+        $(document).ready(function() {
+            let tree = JSON.parse('<%-JSON.stringify(tree)%>');
+            let treeID = tree._id
+            $("body").append(`<div class="container" style="margin-top: 30px">
+        <h3 style="text-align: center; margin-top: 100px">${treeID}'s Lifetime Info</h3>
+        <table id="treeSeasonInfo" class="display center">
+            <thead>
+            <tr>
+                <th>Season</th>
+                <th>Tap Date</th>
+                <th>Start of Season Notes</th>
+                <th>End of Season Notes</th>
+            </tr>
+            </thead>
+            <tbody style="text-align:center">
+            </tbody>
+        </table>
+    </div>`)
+            let treeData = JSON.parse('<%-JSON.stringify(tree)%>');
+            if(treeData){
+                for(let i = 0; i < <%=tree.season.length%>; i++){
+                    $("#treeSeasonInfo").append("<tr></tr>");
+                    $("#treeSeasonInfo > tbody > :last").append("<td>" + treeData.season[i] + "</td>")
+                    $("#treeSeasonInfo > tbody > :last").append("<td>" + treeData.tappingDates[i].toString().substring(0,10) + "</td>")
+                    if(treeData.startNotes[i] == null){
+                        $("#treeSeasonInfo > tbody > :last").append("<td> Empty </td>")
+                    }else{
+                        $("#treeSeasonInfo > tbody > :last").append("<td>" + treeData.startNotes[i] + "</td>")
+                    }
+                    if(treeData.endNotes[i] == null){
+                        $("#treeSeasonInfo > tbody > :last").append("<td> Empty </td>")
+                    }else{
+                        $("#treeSeasonInfo > tbody > :last").append("<td>" + treeData.endNotes[i] + "</td>")
+                    }
+                }
+            }
+            $('#treeSeasonInfo').DataTable({
+                autoWidth: false,
+                lengthChange: false,
+                order: [2,'asc'],
+                pageLength: 10,
+                columnDefs: [
+                    {className: "dt-head-center", targets: "_all"}
+                ],
+                dom: 'Bfrtip',
+                buttons: [
+                    'copy', 'excel', 'csv', 'pdf'
+                ]
+            });
+        });
+    </script>
+
+    <script>
+        //calling datatable for each sap table
+        $(document).ready(function() {
+            for(let i = <%=tree.season[0]%>; i <= <%=tree.season[tree.season.length - 1]%>; i++){
+                $('#sapTable' + i).DataTable({
+                    autoWidth: false,
+                    lengthChange: false,
+                    order: [2,'asc'],
+                    pageLength: 10,
+                    columnDefs: [
+                        {className: "dt-head-center", targets: "_all"}
+                    ],
+                    dom: 'Bfrtip',
+                    buttons: [
+                        'copy', 'excel', 'csv', 'pdf'
+                    ]
+                });
+                let btn = 'graphBtn'+i
+                $("#sapTable" + i +"_wrapper")
+                    .children(".dt-buttons")
+                    .append(`<button class=\"dt-button buttons-copy buttons-html5\" id=`+ btn +` tabindex=\"0\" aria-controls=\"sapTable3\" type=\"button\"><span>Graph</span></button>`);
+            }
+        });
+    </script>
+
+    <script>
+        //tree information table
+        $(document).ready(function() {
+            let treeData = JSON.parse('<%-JSON.stringify(tree)%>');
+            console.log("id",treeData._id);
+            $('#treeData > tbody').append("<tr></tr>");
+            $("#treeData > tbody > :last").append("<td>" + treeData._id + "</td>");
+            $("#treeData > tbody > :last").append("<td>" + treeData.circumf + "</td>");
+            $("#treeData > tbody > :last").append("<td>" + treeData.tappingDates[treeData.tappingDates.length - 1].substring(0, 10) + "</td>");
+            $("#treeData > tbody > :last").append("<td>" + treeData.tapHeight + "</td>");
+            $('#treeData').DataTable({
+                autoWidth: false,
+                lengthChange: false,
+                ordering: false,
+                searching: false,
+                info: false,
+                paging: false,
+                columnDefs: [
+                    {className: "dt-head-center", targets: "_all"}
+                ]
+            });
+        });
+    </script>
+
+    <script>
+
+        function offset(el) {
+            var rect = el.getBoundingClientRect(),
+            scrollLeft = window.pageXOffset || document.documentElement.scrollLeft,
+            scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            return { top: rect.top + scrollTop, left: rect.left + scrollLeft }
+        }
+
+        //Graph
+        $(document).ready(function() {
+            for(let i = <%=tree.season[0]%>; i <= <%=tree.season[tree.season.length - 1]%>; i++){
+                $("#graphBtn" + i).click( function(){
+                    let div = document.createElement("div");
+                    let close = document.createElement("span");
+                    close.setAttribute("id", "close");
+                    close.setAttribute("onclick", "this.parentNode.parentNode.removeChild(this.parentNode); return false;");
+                    close.innerHTML = "X";
+                    div.setAttribute("id",`graph${i}`);
+                    div.style.position = "absolute";
+                    div.style.top = -260 + "px";
+                    div.style.left = 300 + "px";
+                    div.style.zIndex = "1";
+                    div.style.background = "white";
+                    div.appendChild(close);
+                    document.getElementById(`graphBtn${i}`).parentNode.parentNode.parentNode.prepend(div);
+                    console.log("doc getelem",document.getElementById(`graphBtn${i}`).parentNode.parentNode.parentNode);
+                    if( $("#svg"+i).length > 0){
+                        div.remove();
+                    }else{
+                        let jsonData = JSON.parse('<%-JSON.stringify(saps)%>');
+                        let data =[]
+                        let maxY = 0;
+                        jsonData.forEach(entry =>{
+                            if(entry.season == i){
+                                let date = new Date(entry.harvestDate);
+                                let vol = entry.sapVolume;
+                                if(vol > maxY){
+                                    maxY = vol;
+                                }
+                                data.push({date, vol});
+                            }
+                        });
+                        data = data.sort((a, b) => b.date - a.date);
+                        let margin = {top: 50, right: 50, bottom: 50, left: 50}
+                        let width = 450; // Use the window's width
+                        let height = 300 - margin.top - margin.bottom; // Use the window's height
+                        let x = d3.scaleTime().rangeRound([0, width]);
+                        let y = d3.scaleLinear().rangeRound([height, 5]);
+                        let line = d3.line()
+                            .x(function(d) { return x(d.date)})
+                            .y(function(d) { return y(d.vol)})
+                        x.domain(d3.extent(data, function(d) { return d.date }));
+                        y.domain([0,6]);
+
+                        let svg = d3.select(document.getElementById(`graph${i}`)).append("svg")
+                            .attr("width", width + margin.left + margin.right)
+                            .attr("height", height + margin.top + margin.bottom)
+                            .attr("id",'svg'+i)
+                            .append("g")
+                            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+                        svg.append("g")
+                            .attr("class", "x axis")
+                            .attr("transform", "translate(0," + height + ")")
+                            .call(d3.axisBottom(x)) // Create an axis component with d3.axisBottom
+                            .select(".domain");
+
+                        svg.append("g")
+                            .attr("class", "y axis")
+                            .call(d3.axisLeft(y)); // Create an axis component with d3.axisLeft
+
+                        svg.append("path")
+                            .datum(data)
+                            .attr("fill", "none")
+                            .attr("stroke", "steelblue")
+                            .attr("stroke-linejoin", "round")
+                            .attr("stroke-linecap", "round")
+                            .attr("stroke-width", 1.5)
+                            .attr("d", line);
+
+                        svg.selectAll(".dot")
+                            .data(data)
+                            .enter().append("circle") // Uses the enter().append() method
+                            .attr("class", "dot") // Assign a class for styling
+                            .attr("cx", function(d) { return x(d.date) })
+                            .attr("cy", function(d) { return y(d.vol) })
+                            .attr("r", 5)
+                    }
+                })
+            }
+        });
+    </script>
+
+    <script>
+        //Graph
+        $(document).ready(function() {
+            for(let i = <%=tree.season[0]%>; i <= <%=tree.season[tree.season.length - 1]%>; i++) {
+                    if( $("#svg"+i).length > 0){
+                        $("#graphBtn"+i).toggle();
+                    }
+                }
+            })
+    </script>
+<br>
+</body>
+</html>
